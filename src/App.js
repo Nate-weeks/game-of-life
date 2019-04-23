@@ -19,6 +19,7 @@ class App extends Component {
     this.stop = this.stop.bind(this)
     this.clear = this.clear.bind(this)
   }
+  //lifecycle method to build the initial grid
   componentDidMount(){
     const gridTemplate = [[]]
     for(let x=0;x<80;x++){
@@ -32,9 +33,14 @@ class App extends Component {
     })
   }
 
+// method passed to each tile that set's the space in the grid to "on"
   selectTile(x, y){
     let tempgrid = cloneDeep(this.state.grid)
-    tempgrid[x][y] = "on"
+    if(tempgrid[x][y] === "off"){
+      tempgrid[x][y] = "on"
+    } else {
+      tempgrid[x][y] = "off"
+    }
     // console.log(`x = ${x}`)
     // console.log(`y = ${y}`)
     this.setState({
@@ -43,6 +49,7 @@ class App extends Component {
     // console.log(this.state.grid)
   }
 
+// helper method to check if a specific grid tile is set to "on"
   doThing(x,y){
     if(x>=0 && y>=0 && x<80 && y<80){
       if(this.state.grid[x][y] === "on"){
@@ -55,6 +62,7 @@ class App extends Component {
     }
   }
 
+// counts neighboring tiles to see how many are switched on
   countNeighbors(x, y){
     let count = 0
     if(this.doThing(x-1,y-1)){count++};
@@ -68,6 +76,7 @@ class App extends Component {
     return count
   }
 
+// determines which cells turn on and off based on neighbor count
   stepForward(){
     let tempgrid = cloneDeep(this.state.grid)
     for(let x=0;x<80;x++){
@@ -94,19 +103,23 @@ class App extends Component {
     // console.log(this.state.grid)
   }
 
+// passed to button to take a step forward
   handleStep(event){
     event.preventDefault();
     this.stepForward();
   }
 
+// set a time interval to continuously step forward after .3 secs
   play(){
     this.interval = setInterval(this.stepForward, 200);
   }
 
+// remove the time interval
   stop(){
     clearInterval(this.interval)
   }
 
+// button to reset the board
   clear(){
     const gridTemplate = [[]]
     for(let x=0;x<80;x++){
@@ -119,7 +132,10 @@ class App extends Component {
       grid: gridTemplate
     })
   }
+
   render() {
+    // map that returns a nested grid of tiles and passes them a classname and function
+    // that toggles the classname between "on" and "off"
     let tiles = this.state.grid.map((tile, x) => {
       return (
         <tr key = {x}>
