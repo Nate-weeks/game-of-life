@@ -1,25 +1,153 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import GridTile from './GridTile';
+import cloneDeep from 'lodash/cloneDeep';
 
 class App extends Component {
+  constructor(props){
+    super(props)
+    this.state = {
+      grid: []
+    }
+    this.selectTile = this.selectTile.bind(this)
+    this.countNeighbors = this.countNeighbors.bind(this)
+    this.stepForward = this.stepForward.bind(this)
+    this.handleStep = this.handleStep.bind(this)
+    this.doThing = this.doThing.bind(this)
+    this.play = this.play.bind(this)
+    this.stop = this.stop.bind(this)
+    this.clear = this.clear.bind(this)
+  }
+  componentDidMount(){
+    const gridTemplate = [[]]
+    for(let x=0;x<80;x++){
+      gridTemplate[x] = []
+      for(let y=0;y<80;y++){
+        gridTemplate[x].push("off")
+      }
+    }
+    this.setState({
+      grid: gridTemplate
+    })
+  }
+
+  selectTile(x, y){
+    let tempgrid = cloneDeep(this.state.grid)
+    tempgrid[x][y] = "on"
+    // console.log(`x = ${x}`)
+    // console.log(`y = ${y}`)
+    this.setState({
+      grid: tempgrid
+    })
+    // console.log(this.state.grid)
+  }
+
+  doThing(x,y){
+    if(x>=0 && y>=0 && x<80 && y<80){
+      if(this.state.grid[x][y] === "on"){
+        return true
+      } else {
+        return false
+      }
+    } else {
+      return false
+    }
+  }
+
+  countNeighbors(x, y){
+    let count = 0
+    if(this.doThing(x-1,y-1)){count++};
+    if(this.doThing(x,y-1)){count++};
+    if(this.doThing(x+1,y-1)){count++};
+    if(this.doThing(x-1,y)){count++};
+    if(this.doThing(x+1,y)){count++};
+    if(this.doThing(x-1,y+1)){count++};
+    if(this.doThing(x,y+1)){count++};
+    if(this.doThing(x+1,y+1)){count++};
+    return count
+  }
+
+  stepForward(){
+    let tempgrid = cloneDeep(this.state.grid)
+    for(let x=0;x<80;x++){
+      for(let y=0;y<80;y++){
+        let neighbors = this.countNeighbors(x, y)
+
+        if(neighbors === 3 && tempgrid[x][y] === "off"){
+          tempgrid[x][y] = "on"
+          // console.log(`3 neighbors: x = ${x} y = ${y}`)
+        }
+        if(neighbors < 2 && tempgrid[x][y] === "on") {
+          tempgrid[x][y] = "off"
+          // console.log(`< 2 neighbors: x = ${x} y = ${y}`)
+        }
+        if(neighbors > 3 && tempgrid[x][y] === "on") {
+          tempgrid[x][y] = "off"
+          // console.log(`> 3 neighbors: x = ${x} y = ${y}`)
+        }
+      }
+    }
+    this.setState({
+      grid: tempgrid
+    })
+    // console.log(this.state.grid)
+  }
+
+  handleStep(event){
+    event.preventDefault();
+    this.stepForward();
+  }
+
+  play(){
+    this.interval = setInterval(this.stepForward, 200);
+  }
+
+  stop(){
+    clearInterval(this.interval)
+  }
+
+  clear(){
+    const gridTemplate = [[]]
+    for(let x=0;x<80;x++){
+      gridTemplate[x] = []
+      for(let y=0;y<80;y++){
+        gridTemplate[x].push("off")
+      }
+    }
+    this.setState({
+      grid: gridTemplate
+    })
+  }
   render() {
+    let tiles = this.state.grid.map((tile, x) => {
+      return (
+        <tr key = {x}>
+        {tile.map((point, y) => {
+          let handleClick = () => {
+            this.selectTile(x, y)
+          }
+          return (
+            <GridTile key = {y}
+            className = {point}
+            handleClick = {handleClick}/>
+          )
+        })}
+        </tr>
+      )
+    })
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+        <h1>Game of Life</h1>
+        <button onClick={this.handleStep}>step</button>
+        <button onClick={this.play}>play</button>
+        <button onClick={this.stop}>stop</button>
+        <button onClick={this.clear}>clear</button>
+        <table>
+          <tbody>
+            {tiles}
+          </tbody>
+        </table>
       </div>
     );
   }
