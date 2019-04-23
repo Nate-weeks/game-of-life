@@ -11,9 +11,14 @@ Resources
 Deployment
 =========
 
-* Deployed to heroku using the heroku create-react-app buildpack and the heroku command line tools[https://elements.heroku.com/buildpacks/mars/create-react-app-buildpack](https://elements.heroku.com/buildpacks/mars/create-react-app-buildpack)
+* Deployed to heroku using the heroku create-react-app buildpack and the heroku command line tools:  [https://elements.heroku.com/buildpacks/mars/create-react-app-buildpack](https://elements.heroku.com/buildpacks/mars/create-react-app-buildpack)
 
 Running Locally
 ==========
 
-* 
+*
+```
+git clone https://github.com/Nate-weeks/game-of-life.git
+npm install
+npm start
+```
